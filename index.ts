@@ -1,7 +1,41 @@
 import { createHash } from "crypto";
-import { readdir } from "fs";
-import { stat } from "fs/promises";
+import { stat, readdir } from "fs/promises";
 import { sep } from "path";
+
+/**
+ * Metadata for a directory
+ */
+type DirNode = {
+  id: string /* Hash of the full path */;
+  depth: number /* Directory depth from root */;
+  fileCount: number /* Not including descendents */;
+  dirName: string;
+  parent:
+    | string
+    | undefined /* Hash of parent path (undefined if this is the root) */;
+  sizeOfDir: number /* Size of all files in directory */;
+  rollupSize: number /* Size of files in current and descendent directories */;
+};
+
+/**
+ * Based on a core FS Stat
+ * but also includes the file/dir name
+ */
+type FileStat = {
+  name: string;
+  stat: {
+    isDirectory: boolean;
+    isFile: boolean;
+    isSymbolicLink: boolean;
+    size: number;
+  };
+};
+
+/**
+ * Can't use recursion with the generator
+ * so we have homegrown recursion using a stack
+ */
+type Stack = { path: string; thisNode: DirNode; childDirs: FileStat[] };
 
 /**
  * Used for md5 hashing a directory name to
@@ -12,38 +46,6 @@ import { sep } from "path";
 const encode = (txt: string): string =>
   createHash("md5").update(txt).digest("hex");
 
-type TreeNode = {
-  depth: number /* Directory depth from root */;
-  fileCount: number;
-  dirName: string;
-  parentPathHash: string | undefined;
-  sizeOfDir: number /* Size of all files in directory */;
-  totalSize: number /* Size of files in current and descendent directories */;
-};
-
-type TreeModel = {
-  [key: string]: TreeNode;
-};
-
-const treeModel: TreeModel = {};
-
-/**
- * For the supplied file size,
- * add it to the current directory total
- * and all parent directory totals
- * @param treeDataObj
- * @param size
- * @param number
- */
-const applyRollupSize = (treeDataObj: TreeNode, size: number): void => {
-  treeDataObj.totalSize += size;
-  const parentDirHash = treeDataObj.parentPathHash;
-  if (parentDirHash) {
-    const parentNode = treeModel[parentDirHash];
-    applyRollupSize(parentNode, size);
-  }
-};
-
 /**
  * Take a path string of directories
  * separated by path separators
@@ -53,86 +55,121 @@ const applyRollupSize = (treeDataObj: TreeNode, size: number): void => {
 const thisDirName = (path: string) => path.split(sep).slice(-1)[0];
 
 /**
- *
- * @param path
- * @param depth
- * @returns
+ * Generator for yielding directory metadata nodes
+ * @param path Starting file path for checking space usage
+ * @returns generator for
  */
-const processDir = (path: string, depth: number = 0) => {
-  return new Promise<void>((resolve, reject) => {
-    try {
-      // Convert dir name to a hash
-      const dirHash = encode(path);
-      // and the parent dir (so we can keep a pointer to it for roll-up of space)
-      let parentPath: string | undefined = path.substr(
-        0,
-        path.lastIndexOf(sep)
-      );
-      if (parentPath.length === 0) {
-        parentPath = undefined;
-      }
-      // and also its hash
-      const parentPathHash = parentPath && encode(parentPath);
-      // if it's the top dir level it may not exist
-      if (
-        parentPath &&
-        parentPathHash &&
-        treeModel[parentPathHash] === undefined
-      ) {
-        treeModel[parentPathHash] = {
-          depth,
-          fileCount: 0,
-          sizeOfDir: 0,
-          totalSize: 0,
-          dirName: thisDirName(parentPath),
-          parentPathHash: encode(
-            parentPath.substr(0, parentPath.lastIndexOf(sep))
-          ),
-        };
-      }
-      // and see if it is already in out tree model
-      let treeDataObj = treeModel[dirHash];
-      if (treeDataObj === undefined) {
-        // if not, we intialise to a default
-        treeDataObj = {
-          depth,
-          fileCount: 1,
-          sizeOfDir: 0,
-          totalSize: 0,
-          dirName: thisDirName(path),
-          parentPathHash: parentPathHash,
-        };
-        treeModel[dirHash] = treeDataObj;
+export async function* processDir(path: string) {
+  let stack: Stack[] = [];
+  let depth = 0;
+  let thisNode: DirNode | undefined;
+  let childDirs: FileStat[] | undefined;
+
+  while (true) {
+    // Convert dir name to a hash
+    const id = encode(path);
+    // and the parent dir (so we can keep a pointer to it for roll-up of space)
+    let parentPath: string | undefined = path.substr(0, path.lastIndexOf(sep));
+    if (parentPath.length === 0) {
+      parentPath = undefined;
+    }
+    // and also its hash
+    const parentPathHash = parentPath && encode(parentPath);
+
+    const dirName = thisDirName(path);
+
+    if (thisNode === undefined || childDirs === undefined) {
+      const files = await readdir(path, {});
+
+      function isFileStat<FileStat>(
+        value: FileStat | undefined
+      ): value is FileStat {
+        return value !== undefined;
       }
 
-      readdir(path, {}, async (err, files) => {
-        if (err) {
-          throw err;
-        }
-        await Promise.allSettled(
+      /**
+       * Get all the stats of the files
+       * but also inject the file/dir names
+       * which are needed
+       */
+      const stats: FileStat[] = (
+        await Promise.all(
           files.map(async (f: string | Buffer) => {
-            const fullPath = path + sep + f;
             try {
-              const stats = await stat(fullPath);
-              if (stats.isDirectory()) {
-                const childDir = path + sep + f;
-                return processDir(childDir, depth + 1);
-              } else if (stats.isFile()) {
-                treeDataObj.fileCount++;
-                treeDataObj.sizeOfDir += stats.size;
-                applyRollupSize(treeDataObj, stats.size);
-              }
-            } catch (reason) {
-              console.error(reason);
+              const s = await stat(path + sep + f);
+              return {
+                name: f.toString(),
+                stat: {
+                  isDirectory: s.isDirectory(),
+                  isFile: s.isFile(),
+                  isSymbolicLink: s.isSymbolicLink(),
+                  size: s.size,
+                },
+              };
+            } catch (e) {
+              // Remove symbolic links to non-existent files
+              return undefined;
             }
           })
-        );
-        return resolve();
-      });
-    } catch (e) {
-      console.error(`Failed processing ${path}`);
-    }
-  });
-};
+        )
+      ).filter(isFileStat);
 
-processDir(".").then(() => console.log(treeModel));
+      childDirs = stats.filter((s) => s.stat.isDirectory);
+      const filesInThisDir = stats.filter(
+        (s) => s.stat.isFile && !s.stat.isSymbolicLink
+      );
+      // Get sizes of all files in current directory
+      const thisDirSize = filesInThisDir.reduce((a, b) => a + b.stat.size, 0);
+
+      thisNode = {
+        id,
+        depth,
+        fileCount: filesInThisDir.length,
+        sizeOfDir: thisDirSize,
+        rollupSize: thisDirSize,
+        dirName,
+        parent: parentPathHash,
+      };
+    }
+
+    try {
+      if (childDirs.length === 0) {
+        /**
+         * No child directories, so we yield the current node
+         * and head back up to the previous level
+         */
+        let parent = stack.pop();
+        if (parent !== undefined) {
+          yield thisNode;
+          depth--;
+          const sizeOfChild = thisNode.rollupSize;
+          path = parent.path;
+          thisNode = parent.thisNode;
+          thisNode.rollupSize += sizeOfChild;
+          childDirs = parent.childDirs;
+        } else {
+          // Finished
+          return thisNode;
+        }
+      } else {
+        if (thisNode) {
+          let firstChildDir = childDirs.pop();
+          if (firstChildDir) {
+            stack.push({ path, thisNode, childDirs });
+            path = path + sep + firstChildDir.name;
+            depth++;
+            thisNode = undefined;
+            childDirs = undefined;
+          }
+        } else {
+          throw new Error(
+            "Unexpected error: Child directories but current node is undefined"
+          );
+        }
+      }
+    } catch (e) {
+      console.error("Failed", e);
+      throw e;
+    }
+  }
+}
