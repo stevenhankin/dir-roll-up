@@ -5,7 +5,7 @@ import { sep } from "path";
 /**
  * Metadata for a directory
  */
-type DirNode = {
+export type DirNode = {
   id: string /* Hash of the full path */;
   depth: number /* Directory depth from root */;
   fileCount: number /* Not including descendents */;
