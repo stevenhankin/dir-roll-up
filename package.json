@@ -1,13 +1,14 @@
 {
   "name": "dir-roll-up",
-  "version": "1.4.4",
+  "version": "1.4.5",
   "description": "Builds a directory graph with total size at each node",
-  "module": "index.js",
+  "module": "lib/index.js",
   "scripts": {
-    "build": "./node_modules/typescript/bin/tsc && cp ./{package.json,README.md,LICENSE} lib",
+    "build": "./node_modules/typescript/bin/tsc",
     "lint": "./node_modules/eslint/bin/eslint.js index.ts",
     "start": "./node_modules/typescript/bin/tsc && node ./dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postbuild": "cp ./{package.json,README.md,LICENSE} lib"
   },
   "author": "Steve Hankin",
   "license": "ISC",
