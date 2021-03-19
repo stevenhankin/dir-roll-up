@@ -1,8 +1,11 @@
 # dir-roll-up
 
-Node module that iterates over all subdirectories under a path, yielding a total space usage at each level.
+Module to get space usage for all sub directories in a path.
 
-Implemented as an asynchronous generator that only uses core modules.
+Implemented as an asynchronous generator that only uses core modules:
+
+- Responsive and non-blocking
+- Lower runtime memory usage
 
 ## Installing
 
@@ -15,10 +18,10 @@ npm install dir-roll-up
 ### List all directories under current location
 
 ```
-const processPath = require("dir-roll-up");
+var dirRollUp = require("dir-roll-up");
 
 (async () => {
-  for await (let dirNode of processPath(".")) {
+  for await (let dirNode of dirRollUp(".")) {
     console.log(dirNode);
   }
 })();

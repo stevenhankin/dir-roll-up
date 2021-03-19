@@ -66,8 +66,8 @@ export type DirNode = {
  * @param path Starting file path for checking space usage
  * @returns generator for
  */
-async function* processPath(path: string) {
-  let stack: Stack[] = [];
+module.exports = async function* processPath(path: string) {
+  const stack: Stack[] = [];
   let depth = 0;
   let thisNode: DirNode | undefined;
   let childDirs: FileStat[] | undefined;
@@ -139,7 +139,7 @@ async function* processPath(path: string) {
          * No child directories, so we yield the current node
          * and head back up to the previous level
          */
-        let parent = stack.pop();
+        const parent = stack.pop();
         if (parent !== undefined) {
           yield thisNode;
           depth--;
@@ -154,7 +154,7 @@ async function* processPath(path: string) {
         }
       } else {
         if (thisNode) {
-          let firstChildDir = childDirs.pop();
+          const firstChildDir = childDirs.pop();
           if (firstChildDir) {
             stack.push({ path, thisNode, childDirs });
             path = path + sep + firstChildDir.name;
@@ -173,6 +173,4 @@ async function* processPath(path: string) {
       throw e;
     }
   }
-}
-
-module.exports = processPath;
+};
