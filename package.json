@@ -1,6 +1,6 @@
 {
   "name": "dir-roll-up",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "Builds a directory graph with total size at each node",
   "module": "index.js",
   "scripts": {
@@ -19,5 +19,10 @@
     "url": "https://github.com/stevenhankin/dir-roll-up"
   },
   "pkgRoot": "dist",
-  "sideEffects": false
+  "sideEffects": false,
+  "keywords": [
+    "directory",
+    "size",
+    "subdirectory"
+  ]
 }
