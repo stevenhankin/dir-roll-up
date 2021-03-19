@@ -15,7 +15,7 @@ npm install dir-roll-up
 ### List all directories under current location
 
 ```
-import processPath from "dir-roll-up";
+const processPath = require("dir-roll-up");
 
 (async () => {
   for await (let dirNode of processPath(".")) {
