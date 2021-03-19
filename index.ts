@@ -5,7 +5,7 @@ import { sep } from "path";
 /**
  * Metadata for a directory
  */
-export type DirNode = {
+type DirNode = {
   id: string /* Hash of the full path */;
   depth: number /* Directory depth from root */;
   fileCount: number /* Not including descendents */;
@@ -59,7 +59,7 @@ const thisDirName = (path: string) => path.split(sep).slice(-1)[0];
  * @param path Starting file path for checking space usage
  * @returns generator for
  */
-export async function* processDir(path: string) {
+export default async function* processPath(path: string) {
   let stack: Stack[] = [];
   let depth = 0;
   let thisNode: DirNode | undefined;
@@ -173,3 +173,9 @@ export async function* processDir(path: string) {
     }
   }
 }
+
+(async () => {
+  for await (let dirNode of processPath(".")) {
+    console.log(dirNode);
+  }
+})();
