@@ -7,6 +7,8 @@ Implemented as an asynchronous generator that only uses core modules:
 - Responsive and non-blocking
 - Lower runtime memory usage
 
+![Usage](https://raw.githubusercontent.com/stevenhankin/dir-roll-up/main/info/dir-roll-up.gif)
+
 ## Installing
 
 ```
