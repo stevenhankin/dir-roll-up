@@ -49,7 +49,7 @@ function isFileStat<FileStat>(value: FileStat | undefined): value is FileStat {
 /**
  * Metadata for a directory
  */
-type DirNode = {
+export type DirNode = {
   id: string /* Hash of the full path */;
   depth: number /* Directory depth from root */;
   fileCount: number /* Not including descendents */;
