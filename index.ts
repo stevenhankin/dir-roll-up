@@ -55,6 +55,13 @@ const encode = (txt: string): string =>
 const thisDirName = (path: string) => path.split(sep).slice(-1)[0];
 
 /**
+ * Used for filtering out unwanted File Stats that are marked as undefined
+ */
+function isFileStat<FileStat>(value: FileStat | undefined): value is FileStat {
+  return value !== undefined;
+}
+
+/**
  * Generator for yielding directory metadata nodes
  * @param path Starting file path for checking space usage
  * @returns generator for
@@ -80,12 +87,6 @@ export default async function* processPath(path: string) {
 
     if (thisNode === undefined || childDirs === undefined) {
       const files = readdirSync(path, {});
-
-      function isFileStat<FileStat>(
-        value: FileStat | undefined
-      ): value is FileStat {
-        return value !== undefined;
-      }
 
       /**
        * Get all the stats of the files
@@ -173,9 +174,3 @@ export default async function* processPath(path: string) {
     }
   }
 }
-
-(async () => {
-  for await (let dirNode of processPath(".")) {
-    console.log(dirNode);
-  }
-})();
