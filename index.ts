@@ -66,7 +66,7 @@ function isFileStat<FileStat>(value: FileStat | undefined): value is FileStat {
  * @param path Starting file path for checking space usage
  * @returns generator for
  */
-export default async function* processPath(path: string) {
+async function* processPath(path: string) {
   let stack: Stack[] = [];
   let depth = 0;
   let thisNode: DirNode | undefined;
@@ -174,3 +174,5 @@ export default async function* processPath(path: string) {
     }
   }
 }
+
+module.exports = processPath;
