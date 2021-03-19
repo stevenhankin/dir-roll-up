@@ -1,6 +1,6 @@
 {
   "name": "dir-roll-up",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Builds a directory graph with total size at each node",
   "main": "index.js",
   "scripts": {

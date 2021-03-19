@@ -1,5 +1,5 @@
 import { createHash } from "crypto";
-import { stat, readdir } from "fs/promises";
+import { readdirSync, statSync } from "fs";
 import { sep } from "path";
 
 /**
@@ -79,7 +79,7 @@ export async function* processDir(path: string) {
     const dirName = thisDirName(path);
 
     if (thisNode === undefined || childDirs === undefined) {
-      const files = await readdir(path, {});
+      const files = readdirSync(path, {});
 
       function isFileStat<FileStat>(
         value: FileStat | undefined
@@ -96,7 +96,7 @@ export async function* processDir(path: string) {
         await Promise.all(
           files.map(async (f: string | Buffer) => {
             try {
-              const s = await stat(path + sep + f);
+              const s = statSync(path + sep + f);
               return {
                 name: f.toString(),
                 stat: {
