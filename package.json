@@ -1,14 +1,13 @@
 {
   "name": "dir-roll-up",
-  "version": "1.4.6",
-  "description": "Builds a directory graph with total size at each node",
-  "module": "index.js",
+  "version": "1.4.7",
+  "description": "Module to get space usage for all sub directories in a path",
+  "module": "lib/index.js",
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
     "lint": "./node_modules/eslint/bin/eslint.js index.ts",
     "start": "./node_modules/typescript/bin/tsc && node ./dist/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "postbuild": "cp ./{package.json,README.md,LICENSE} lib"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Steve Hankin",
   "license": "ISC",
@@ -29,5 +28,8 @@
     "directory",
     "size",
     "subdirectory"
-  ]
+  ],
+  "engines": {
+    "node": ">=10"
+  }
 }
