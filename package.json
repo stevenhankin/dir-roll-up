@@ -1,8 +1,8 @@
 {
   "name": "dir-roll-up",
-  "version": "1.4.5",
+  "version": "1.4.6",
   "description": "Builds a directory graph with total size at each node",
-  "module": "lib/index.js",
+  "module": "index.js",
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
     "lint": "./node_modules/eslint/bin/eslint.js index.ts",
