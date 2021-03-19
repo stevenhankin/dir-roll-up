@@ -3,21 +3,6 @@ import { readdirSync, statSync } from "fs";
 import { sep } from "path";
 
 /**
- * Metadata for a directory
- */
-type DirNode = {
-  id: string /* Hash of the full path */;
-  depth: number /* Directory depth from root */;
-  fileCount: number /* Not including descendents */;
-  dirName: string;
-  parent:
-    | string
-    | undefined /* Hash of parent path (undefined if this is the root) */;
-  sizeOfDir: number /* Size of all files in directory */;
-  rollupSize: number /* Size of files in current and descendent directories */;
-};
-
-/**
  * Based on a core FS Stat
  * but also includes the file/dir name
  */
@@ -60,6 +45,21 @@ const thisDirName = (path: string) => path.split(sep).slice(-1)[0];
 function isFileStat<FileStat>(value: FileStat | undefined): value is FileStat {
   return value !== undefined;
 }
+
+/**
+ * Metadata for a directory
+ */
+type DirNode = {
+  id: string /* Hash of the full path */;
+  depth: number /* Directory depth from root */;
+  fileCount: number /* Not including descendents */;
+  dirName: string;
+  parent:
+    | string
+    | undefined /* Hash of parent path (undefined if this is the root) */;
+  sizeOfDir: number /* Size of all files in directory */;
+  rollupSize: number /* Size of files in current and descendent directories */;
+};
 
 /**
  * Generator for yielding directory metadata nodes
