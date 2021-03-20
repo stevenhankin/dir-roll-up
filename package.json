@@ -1,6 +1,6 @@
 {
   "name": "dir-roll-up",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "Module to get space usage for all sub directories in a path",
   "main": "lib/index.js",
   "types": "index.d.ts",
