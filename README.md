@@ -19,7 +19,9 @@ Implemented as an asynchronous generator that only uses core modules:
 npm install dir-roll-up
 ```
 
-## Nodes
+---
+
+## Examples
 
 Each directory is returned as a node in the following format:
 
@@ -35,26 +37,42 @@ Each directory is returned as a node in the following format:
 }
 ```
 
-## Examples
+### 1) Directories aggregated
 
-### List all directories under current location
+List all directories under current location. Each node is only returned once, when its total size is aggregated, resulting in a bottom-up retrieval.
 
 ```
-const processPath = require("dir-roll-up");
+const dirRollUp = require("dir-roll-up");
 
 (async () => {
-  for await (let dirNode of processPath(".")) {
+  for await (let dirNode of dirRollUp(".")) {
     console.log(dirNode);
   }
 })();
 ```
 
-### Get each directory node, as required (in an interval loop)
+### 2) Directories including partial updates
+
+Directories are repeatedly emitted as the total size is increased for each aggregated sub directory. This is configured by passing an option `{includePartial: true}`
 
 ```
-const processPath = require("dir-roll-up");
+const dirRollUp = require("dir-roll-up");
 
-const dirNodeGenerator = processPath(".");
+(async () => {
+  for await (let dirNode of dirRollUp(".", {includePartial: true})) {
+    console.log(dirNode);
+  }
+})();
+```
+
+### 3) Get directories from an interval
+
+Get each directory node, as required (in an interval loop), as an example of the non-blocking approach
+
+```
+const dirRollUp = require("dir-roll-up");
+
+const dirNodeGenerator = dirRollUp(".");
 
 const interval = setInterval(async () => {
 

@@ -102,7 +102,7 @@ module.exports = async function* processPath(path: string, options?: Options) {
   let thisNode: DirNode | undefined;
   let childDirs: FileStat[] | undefined;
 
-  const includePartial = options?.includePartial || false;
+  const includePartial = options === undefined ? false : options.includePartial;
 
   while (true) {
     // Convert dir name to a hash
@@ -155,6 +155,7 @@ module.exports = async function* processPath(path: string, options?: Options) {
           childDirs = parent.childDirs;
         } else {
           // Finished
+          yield thisNode;
           return thisNode;
         }
       } else {
