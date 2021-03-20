@@ -20,11 +20,40 @@ npm install dir-roll-up
 ### List all directories under current location
 
 ```
-var dirRollUp = require("dir-roll-up");
+const processPath = require("dir-roll-up");
 
 (async () => {
-  for await (let dirNode of dirRollUp(".")) {
+  for await (let dirNode of processPath(".")) {
     console.log(dirNode);
   }
 })();
+```
+
+### Get each directory node, as required (in an interval loop)
+
+```
+const processPath = require("dir-roll-up");
+
+const dirNodeGenerator = processPath(".");
+
+const interval = setInterval(async () => {
+
+  /**
+   * Get the next directory...
+   */
+  const dirNode = await dirNodeGenerator.next();
+
+  /**
+   * ..display it..
+   */
+  console.log(dirNode.value);
+
+  /**
+   * ..and end the interval when last directory retrieved (which will be the root)
+   */
+  if (dirNode.done) {
+    console.log("Finished!");
+    clearInterval(interval);
+  }
+}, 300);
 ```

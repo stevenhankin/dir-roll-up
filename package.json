@@ -3,6 +3,7 @@
   "version": "1.4.9",
   "description": "Module to get space usage for all sub directories in a path",
   "main": "lib/index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "./node_modules/typescript/bin/tsc",
     "lint": "./node_modules/eslint/bin/eslint.js index.ts",
@@ -22,6 +23,10 @@
     "type": "git",
     "url": "https://github.com/stevenhankin/dir-roll-up"
   },
+  "bugs": {
+    "url": "https://github.com/stevenhankin/dir-roll-up/issues"
+  },
+  "homepage": "https://github.com/stevenhankin/dir-roll-up",
   "pkgRoot": "dist",
   "sideEffects": false,
   "keywords": [
