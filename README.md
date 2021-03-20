@@ -21,10 +21,18 @@ npm install dir-roll-up
 
 ## Nodes
 
-Each directory is returned as a node that looks as follows:
+Each directory is returned as a node in the following format:
 
-```
-
+```json
+{
+  "id": "8abf23ea00bbf8ac2ff47b6ecba9984f",
+  "depth": 1,
+  "fileCount": 5,
+  "sizeOfDir": 2032,
+  "rollupSize": 259737,
+  "dirName": ".git",
+  "parent": "5058f1af8388633f609cadb75a75dc9d"
+}
 ```
 
 ## Examples
