@@ -31,7 +31,7 @@ declare namespace processPath {
     depth: number;
     fileCount: number;
     dirName: string;
-    parent: string | undefined;
+    parent: string | null;
     sizeOfDir: number;
     rollupSize: number;
   }

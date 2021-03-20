@@ -54,9 +54,7 @@ export type DirNode = {
   depth: number /* Directory depth from root */;
   fileCount: number /* Not including descendents */;
   dirName: string;
-  parent:
-    | string
-    | undefined /* Hash of parent path (undefined if this is the root) */;
+  parent: string | null /* Hash of parent path (null if this is the root) */;
   sizeOfDir: number /* Size of all files in directory */;
   rollupSize: number /* Size of files in current and descendent directories */;
 };
@@ -81,7 +79,7 @@ module.exports = async function* processPath(path: string) {
       parentPath = undefined;
     }
     // and also its hash
-    const parentPathHash = parentPath && encode(parentPath);
+    const parentPathHash = parentPath === undefined ? null : encode(parentPath);
 
     const dirName = thisDirName(path);
 
@@ -129,7 +127,7 @@ module.exports = async function* processPath(path: string) {
         sizeOfDir: thisDirSize,
         rollupSize: thisDirSize,
         dirName,
-        parent: parentPathHash,
+        parent: depth === 0 ? null : parentPathHash,
       };
     }
 

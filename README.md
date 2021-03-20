@@ -2,6 +2,10 @@
 
 Module to get space usage for all sub directories in a path.
 
+### [Try on RunKit](https://runkit.com/stevenhankin/dir-roll-up-example)
+
+---
+
 Implemented as an asynchronous generator that only uses core modules:
 
 - Responsive and non-blocking
@@ -13,6 +17,14 @@ Implemented as an asynchronous generator that only uses core modules:
 
 ```
 npm install dir-roll-up
+```
+
+## Nodes
+
+Each directory is returned as a node that looks as follows:
+
+```
+
 ```
 
 ## Examples
