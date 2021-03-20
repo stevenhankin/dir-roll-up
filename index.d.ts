@@ -14,15 +14,22 @@
 // https://www.typescriptlang.org/docs/handbook/modules.html#export--and-import--require
 // to understand common workarounds for this limitation of ES6 modules.
 
-export as namespace processPath;
+export as namespace dirRollUp;
 
 export = processPath;
 
 declare function processPath(
-  path: string
-): AsyncGenerator<processPath.DirNode, processPath.DirNode, unknown>;
+  path: string,
+  options?: dirRollUp.Options
+): AsyncGenerator<dirRollUp.DirNode, dirRollUp.DirNode, unknown>;
 
-declare namespace processPath {
+declare namespace dirRollUp {
+  /**
+   * Processing options
+   */
+  export type Options = {
+    includePartial: boolean;
+  };
   /**
    * Metadata for a directory
    */

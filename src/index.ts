@@ -59,6 +59,10 @@ export type DirNode = {
   rollupSize: number /* Size of files in current and descendent directories */;
 };
 
+export type Options = {
+  includePartial: boolean;
+};
+
 /**
  * Get all the stats of the files
  * but also inject the file/dir names
@@ -90,13 +94,15 @@ const getDirStats = async (files: string[] | Buffer[], path: string) =>
 /**
  * Generator for yielding directory metadata nodes
  * @param path Starting file path for checking space usage
- * @returns generator for
+ * @returns generator for directories with rollup size and counts
  */
-module.exports = async function* processPath(path: string) {
+module.exports = async function* processPath(path: string, options?: Options) {
   const stack: Stack[] = [];
   let depth = 0;
   let thisNode: DirNode | undefined;
   let childDirs: FileStat[] | undefined;
+
+  const includePartial = options?.includePartial || false;
 
   while (true) {
     // Convert dir name to a hash
@@ -155,6 +161,9 @@ module.exports = async function* processPath(path: string) {
         if (thisNode) {
           const firstChildDir = childDirs.pop();
           if (firstChildDir) {
+            if (includePartial) {
+              yield thisNode;
+            }
             stack.push({ path, thisNode, childDirs });
             path = path + sep + firstChildDir.name;
             depth++;
