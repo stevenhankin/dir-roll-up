@@ -60,6 +60,34 @@ export type DirNode = {
 };
 
 /**
+ * Get all the stats of the files
+ * but also inject the file/dir names
+ * which are needed
+ */
+const getDirStats = async (files: string[] | Buffer[], path: string) =>
+  (
+    await Promise.all(
+      files.map(async (f: string | Buffer) => {
+        try {
+          const s = statSync(path + sep + f);
+          return {
+            name: f.toString(),
+            stat: {
+              isDirectory: s.isDirectory(),
+              isFile: s.isFile(),
+              isSymbolicLink: s.isSymbolicLink(),
+              size: s.size,
+            },
+          };
+        } catch (e) {
+          // Remove symbolic links to non-existent files
+          return undefined;
+        }
+      })
+    )
+  ).filter(isFileStat);
+
+/**
  * Generator for yielding directory metadata nodes
  * @param path Starting file path for checking space usage
  * @returns generator for
@@ -85,34 +113,7 @@ module.exports = async function* processPath(path: string) {
 
     if (thisNode === undefined || childDirs === undefined) {
       const files = readdirSync(path, {});
-
-      /**
-       * Get all the stats of the files
-       * but also inject the file/dir names
-       * which are needed
-       */
-      const stats: FileStat[] = (
-        await Promise.all(
-          files.map(async (f: string | Buffer) => {
-            try {
-              const s = statSync(path + sep + f);
-              return {
-                name: f.toString(),
-                stat: {
-                  isDirectory: s.isDirectory(),
-                  isFile: s.isFile(),
-                  isSymbolicLink: s.isSymbolicLink(),
-                  size: s.size,
-                },
-              };
-            } catch (e) {
-              // Remove symbolic links to non-existent files
-              return undefined;
-            }
-          })
-        )
-      ).filter(isFileStat);
-
+      const stats: FileStat[] = await getDirStats(files, path);
       childDirs = stats.filter((s) => s.stat.isDirectory);
       const filesInThisDir = stats.filter(
         (s) => s.stat.isFile && !s.stat.isSymbolicLink
