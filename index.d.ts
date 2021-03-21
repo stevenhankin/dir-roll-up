@@ -16,9 +16,9 @@
 
 export as namespace dirRollUp;
 
-export = processPath;
+export = dirRollUp;
 
-declare function processPath(
+declare function dirRollUp(
   path: string,
   options?: dirRollUp.Options
 ): AsyncGenerator<dirRollUp.DirNode, dirRollUp.DirNode, unknown>;
@@ -34,12 +34,12 @@ declare namespace dirRollUp {
    * Metadata for a directory
    */
   export interface DirNode {
-    id: string;
-    depth: number;
-    fileCount: number;
-    dirName: string;
-    parent: string | null;
-    sizeOfDir: number;
-    rollupSize: number;
+    id: string /* Unique identifier for a node */;
+    depth: number /* Distance from top node */;
+    fileCount: number /* Number of files in directory */;
+    dirName: string /* Name */;
+    parent: string | null /* Id of parent node */;
+    sizeOfDir: number /* Size in bytes of files in directory */;
+    rollupSize: number /* Total size of all files contained including subdirectories */;
   }
 }
